@@ -38,10 +38,13 @@ def start_message_if(wiki):
 
 
 def wiki_message(wiki):
-    word = wiki.text
-    print(word)
-    search_on_wikipedia = wikipedia.page(word).content
-    bot.send_message(wiki.chat.id, search_on_wikipedia, parse_mode='html')
+    try:
+        word = wiki.text.strip().lower()
+        print(word)
+        search_on_wikipedia = wikipedia.summary(word)
+        bot.send_message(wiki.chat.id, search_on_wikipedia, parse_mode='html')
+    except Exception:
+        bot.send_message(wiki.chat.id, "Телеграм бот неможет найти статью")
 
 
 def wiki_message_random(wiki):
@@ -49,7 +52,8 @@ def wiki_message_random(wiki):
     soup = BeautifulSoup(url.content, "html.parser")
     title = soup.find(class_="firstHeading").text
     url = "https://en.wikipedia.org/wiki/%s" % title
-    webbrowser.open(url)
+    #webbrowser.open(url)
+    bot.send_message(wiki.chat.id, url)
 
 
 bot.polling(none_stop=True)
