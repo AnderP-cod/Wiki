@@ -2,49 +2,50 @@ import wikipedia
 import telebot
 import requests
 from bs4 import BeautifulSoup
-import webbrowser
+
 import random
 from telebot import types
 from telegram.ext import Updater, CommandHandler, MessageHandler
 from telegram import KeyboardButton, ReplyKeyboardMarkup
 import Token
 
-wikipedia.set_lang('ru')
+wikipedia.set_lang('uk')
 bot = telebot.TeleBot(Token.Token_telegram)
 print("start protgik")
 
 
 @bot.message_handler(commands=['start'])
 def start_message(wiki):
-    markup = types.ReplyKeyboardMarkup()
-    item1 = types.KeyboardButton("Сделать поиск по википедии")
-    item2 = types.KeyboardButton("Рандомная стать с википедии")
+    markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+    item1 = types.KeyboardButton("Зробити пошук")
+    item2 = types.KeyboardButton("Рандомна стаття")
     markup.add(item1, item2)
-    bot.send_message(wiki.chat.id, "Здравствуйте, что вы хотите сделать", reply_markup=markup)
+    bot.send_message(wiki.chat.id, "Доброго дня, що ви хочете зробити", reply_markup=markup)
     bot.register_next_step_handler(wiki, start_message_if)
 
 @bot.message_handler(commands=['help'])
 def help_message(help):
-    bot.send_message(help.chat.id, "Телеграм бот умеет делать поиск по\n векипедии и находить рандомную статью в википедии")
+    bot.send_message(help.chat.id, "Телеграм бот вміє робити пошук по\n вікипедії і знаходити рандомну статтю у вікіпедії")
 
 
 @bot.message_handler(content_types=['text'])
 def start_message_if(wiki):
-    if wiki.text == "Сделать поиск по википедии":
+    if wiki.text == "Зробити пошук":
+        bot.send_message(wiki.chat.id, "Напишіть, що ви хочете знайти")
         bot.register_next_step_handler(wiki, wiki_message)
-    elif wiki.text == "Рандомная стать с википедии":
-        bot.send_message(wiki.chat.id, "Нажмите 2 раза чтобы сработала функция 'Рандомная стать с википедии'")
+    elif wiki.text == "Рандомна стаття":
+        bot.send_message(wiki.chat.id, "Натисніть 2 рази, щоб спрацювала функція Рандомна стаття з вікіпедії")
         bot.register_next_step_handler(wiki, wiki_message_random)
 
 
 def wiki_message(wiki):
     try:
-        word = wiki.text.strip().lower()
+        word = wiki.text.lower()
         print(word)
         search_on_wikipedia = wikipedia.summary(word)
         bot.send_message(wiki.chat.id, search_on_wikipedia, parse_mode='html')
     except Exception:
-        bot.send_message(wiki.chat.id, "Телеграм бот неможет найти статью")
+        bot.send_message(wiki.chat.id, "Телеграм бот не може знайти статтю")
 
 
 def wiki_message_random(wiki):
@@ -52,7 +53,6 @@ def wiki_message_random(wiki):
     soup = BeautifulSoup(url.content, "html.parser")
     title = soup.find(class_="firstHeading").text
     url = "https://en.wikipedia.org/wiki/%s" % title
-    #webbrowser.open(url)
     bot.send_message(wiki.chat.id, url)
 
 
